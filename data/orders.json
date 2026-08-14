@@ -1,0 +1,58 @@
+[
+  {
+    "orderId": "ORD-1001",
+    "customer": "Sarah Jenkins",
+    "date": "2026-08-08",
+    "status": "In Transit",
+    "carrier": "FedEx Express",
+    "trackingNumber": "FX-9920184712",
+    "estimatedDelivery": "2026-08-12",
+    "items": [
+      { "name": "Ultra-Fit Running Shoes", "size": "US 9", "qty": 1, "price": "$120.00" }
+    ],
+    "timeline": [
+      { "step": "Order Placed", "date": "Aug 08, 09:30 AM", "done": true },
+      { "step": "Payment Confirmed", "date": "Aug 08, 09:32 AM", "done": true },
+      { "step": "Shipped from Warehouse", "date": "Aug 09, 02:15 PM", "done": true },
+      { "step": "In Transit (Regional Hub)", "date": "Aug 10, 11:00 AM", "done": true },
+      { "step": "Out for Delivery", "date": "Aug 12, Expected", "done": false }
+    ]
+  },
+  {
+    "orderId": "ORD-1002",
+    "customer": "Michael Chang",
+    "date": "2026-08-10",
+    "status": "Processing",
+    "carrier": "UPS Ground",
+    "trackingNumber": "Pending",
+    "estimatedDelivery": "2026-08-14",
+    "items": [
+      { "name": "Wireless Noise-Canceling Headphones", "size": "Standard", "qty": 1, "price": "$199.00" }
+    ],
+    "timeline": [
+      { "step": "Order Placed", "date": "Aug 10, 04:20 PM", "done": true },
+      { "step": "Payment Confirmed", "date": "Aug 10, 04:21 PM", "done": true },
+      { "step": "Packing at Warehouse", "date": "Aug 11, 08:00 AM", "done": true },
+      { "step": "Shipped from Warehouse", "date": "Aug 11, Pending", "done": false },
+      { "step": "Out for Delivery", "date": "Aug 14, Expected", "done": false }
+    ]
+  },
+  {
+    "orderId": "ORD-1003",
+    "customer": "Elena Rostova",
+    "date": "2026-08-04",
+    "status": "Delivered",
+    "carrier": "DHL Express",
+    "trackingNumber": "DHL-44820192",
+    "estimatedDelivery": "2026-08-07",
+    "items": [
+      { "name": "Organic Cotton Hoodie", "size": "Medium", "qty": 2, "price": "$130.00" }
+    ],
+    "timeline": [
+      { "step": "Order Placed", "date": "Aug 04, 10:15 AM", "done": true },
+      { "step": "Payment Confirmed", "date": "Aug 04, 10:16 AM", "done": true },
+      { "step": "Shipped from Warehouse", "date": "Aug 05, 01:00 PM", "done": true },
+      { "step": "Delivered to Front Porch", "date": "Aug 07, 03:45 PM", "done": true }
+    ]
+  }
+]

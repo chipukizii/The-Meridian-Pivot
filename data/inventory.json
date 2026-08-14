@@ -1,0 +1,46 @@
+[
+  {
+    "sku": "SKU-SHOE-01",
+    "name": "Ultra-Fit Running Shoes",
+    "category": "Footwear",
+    "price": "$120.00",
+    "inStock": true,
+    "stockCount": 42,
+    "sizesAvailable": ["US 7", "US 8", "US 9", "US 10", "US 11"],
+    "outOfStockSizes": ["US 8.5", "US 12"],
+    "nextRestockDate": "2026-08-20"
+  },
+  {
+    "sku": "SKU-AUDIO-02",
+    "name": "Wireless Noise-Canceling Headphones",
+    "category": "Electronics",
+    "price": "$199.00",
+    "inStock": true,
+    "stockCount": 15,
+    "sizesAvailable": ["Standard Black", "Silver Gray"],
+    "outOfStockSizes": ["Rose Gold"],
+    "nextRestockDate": "2026-08-25"
+  },
+  {
+    "sku": "SKU-HOOD-03",
+    "name": "Organic Cotton Hoodie",
+    "category": "Apparel",
+    "price": "$65.00",
+    "inStock": false,
+    "stockCount": 0,
+    "sizesAvailable": [],
+    "outOfStockSizes": ["Small", "Medium", "Large", "XL"],
+    "nextRestockDate": "2026-08-16"
+  },
+  {
+    "sku": "SKU-BOTT-04",
+    "name": "Insulated Thermal Water Bottle (1L)",
+    "category": "Accessories",
+    "price": "$34.00",
+    "inStock": true,
+    "stockCount": 88,
+    "sizesAvailable": ["1 Liter - Matte Black", "1 Liter - Ocean Blue", "1 Liter - Sage Green"],
+    "outOfStockSizes": [],
+    "nextRestockDate": "In Stock"
+  }
+]

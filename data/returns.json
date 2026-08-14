@@ -1,0 +1,17 @@
+[
+  {
+    "policyDays": 30,
+    "freeReturnThreshold": "$50.00",
+    "eligibleReasons": [
+      "Wrong Size / Didn't Fit",
+      "Item Arrived Damaged / Defective",
+      "Item Not as Pictured",
+      "Changed My Mind",
+      "Received Incorrect Item"
+    ],
+    "refundMethods": [
+      "Original Payment Method (3-5 business days)",
+      "Instant Store Credit (+ $10 Bonus Credit)"
+    ]
+  }
+]
