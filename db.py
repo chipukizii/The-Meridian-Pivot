@@ -47,6 +47,32 @@ def get_return_items_for_order(order_id):
     return order, order.get('items', [])
 
 
+def _save(filename, data):
+    """Save a Python object to JSON file in the data directory."""
+    path = os.path.join(DATA_DIR, filename)
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+
+
+# ---- Sync Status Metadata ----
+_sync_metadata = {
+    'lastSyncedAt': None,
+    'syncMethod': 'UNINITIALIZED',
+    'totalSynced': 0
+}
+
+def get_sync_status():
+    """Return current inventory sync status metadata."""
+    return _sync_metadata
+
+def update_sync_status(method, count):
+    """Update inventory sync metadata."""
+    import datetime
+    _sync_metadata['lastSyncedAt'] = datetime.datetime.now().isoformat()
+    _sync_metadata['syncMethod'] = method
+    _sync_metadata['totalSynced'] += count
+
+
 # ---- Inventory ----
 
 def search_inventory(query=''):
@@ -70,3 +96,27 @@ def get_item_by_sku(sku):
     """Return a single inventory item by SKU, or None."""
     inventory = _load('inventory.json')
     return next((i for i in inventory if i['sku'] == sku), None)
+
+def update_inventory_cache(updates):
+    """
+    Update local inventory cache with a list of stock updates.
+    updates format: [{'sku': '...', 'stockCount': int, 'inStock': bool}, ...]
+    """
+    inventory = _load('inventory.json')
+    updated_count = 0
+    sku_map = {item['sku']: item for item in inventory}
+
+    for update in updates:
+        sku = update.get('sku')
+        if sku in sku_map:
+            if 'stockCount' in update:
+                sku_map[sku]['stockCount'] = update['stockCount']
+                sku_map[sku]['inStock'] = update['stockCount'] > 0
+            if 'price' in update:
+                sku_map[sku]['price'] = update['price']
+            updated_count += 1
+
+    _save('inventory.json', inventory)
+    update_sync_status('POLLING_5MIN', updated_count)
+    return updated_count
+

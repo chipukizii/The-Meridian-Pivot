@@ -118,7 +118,8 @@ def get_inventory():
 
     _deflection['count'] += 1
     _deflection['total'] += 1
-    return jsonify({'success': True, 'results': results})
+    sync_meta = db.get_sync_status()
+    return jsonify({'success': True, 'syncMetadata': sync_meta, 'results': results})
 
 
 @api.route('/inventory/notify', methods=['POST'])
