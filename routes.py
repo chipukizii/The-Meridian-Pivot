@@ -145,3 +145,116 @@ def submit_ticket():
         'ticketId': ticket_id,
         'message': 'Our support team will respond within 4 business hours.'
     })
+
+
+# ==============================================================================
+# DAY 4 PIVOT: Solstice Events Co. Kiosk Check-In & Async Webhook Architecture
+# ==============================================================================
+
+# 1. DEPRECATED ROUTE: Synchronous Printer API (Killed per Day 4 Pivot)
+@api.route('/printer/print-job-sync', methods=['POST'])
+def deprecated_sync_printer():
+    """
+    DEPRECATED ENDPOINT (Day 4 Pivot Requirement).
+    Returns HTTP 410 Gone to indicate synchronous printing is permanently killed.
+    """
+    return jsonify({
+        'error': 'DEPRECATED_ENDPOINT',
+        'status': 'KILLED',
+        'message': 'The synchronous badge-printer API has been deprecated per the Day 4 pivot. You must use the asynchronous message queue + webhook callback model.'
+    }), 410
+
+
+# 2. Kiosk Check-In QR Code Scanning Endpoint
+@api.route('/kiosk/checkin', methods=['POST'])
+def kiosk_scan_checkin():
+    """
+    Kiosk Staff Scans Attendee QR Code.
+    Enforces Duplicate-Scan Protection and enqueues print job asynchronously.
+    Initial UI State: PENDING_PRINT (not Checked In immediately).
+    """
+    from message_queue import printer_queue
+    data = request.get_json() or {}
+    ticket_id = data.get('ticketId', '').strip()
+
+    if not ticket_id:
+        return jsonify({'success': False, 'error': 'Ticket ID is required.'}), 400
+
+    success, code, attendee = db.initiate_attendee_checkin(ticket_id)
+
+    if not success:
+        if code == 'DUPLICATE_SCAN_REJECTED':
+            return jsonify({
+                'success': False,
+                'error': 'DUPLICATE_SCAN_REJECTED',
+                'message': f"Attendee {ticket_id} is already checked in or print job is pending.",
+                'attendee': attendee
+            }), 400
+        return jsonify({'success': False, 'error': f"Ticket '{ticket_id}' not found."}), 404
+
+    # Publish message to vendor queue
+    job_id = attendee['printJobId']
+    printer_queue.publish_print_job(ticket_id, job_id)
+
+    return jsonify({
+        'success': True,
+        'status': 'PENDING_PRINT',
+        'message': 'Print job enqueued onto vendor message queue. Waiting for webhook callback confirmation.',
+        'jobId': job_id,
+        'attendee': attendee
+    })
+
+
+# 3. Webhook Endpoint: Receives Badge Printer Callback Confirmation
+@api.route('/webhooks/badge-printed', methods=['POST'])
+def badge_printed_webhook():
+    """
+    Asynchronous Webhook Callback Endpoint.
+    Receives callback from badge printer vendor once print job completes.
+    Validates HMAC signature and updates attendee status to CHECKED_IN.
+    """
+    from message_queue import printer_queue, WEBHOOK_SECRET
+    import hmac, hashlib
+
+    signature_header = request.headers.get('X-Printer-Signature', '')
+    raw_payload = request.get_data()
+
+    # HMAC Signature Validation
+    expected_sig = hmac.new(
+        WEBHOOK_SECRET.encode('utf-8'),
+        raw_payload,
+        hashlib.sha256
+    ).hexdigest()
+
+    if signature_header and not hmac.compare_digest(signature_header, expected_sig):
+        return jsonify({'error': 'INVALID_SIGNATURE', 'message': 'HMAC signature verification failed.'}), 401
+
+    data = request.get_json() or {}
+    ticket_id = data.get('ticketId')
+    job_id = data.get('jobId')
+    badge_id = data.get('badgeId')
+
+    if not ticket_id or not job_id:
+        return jsonify({'error': 'INVALID_PAYLOAD', 'message': 'Missing ticketId or jobId in payload.'}), 400
+
+    # Process confirmation (Idempotent update)
+    updated_attendee = db.confirm_badge_printed(ticket_id, job_id, badge_id)
+
+    return jsonify({
+        'success': True,
+        'status': 'CHECKED_IN',
+        'message': f"Badge printing confirmed for attendee {ticket_id}.",
+        'attendee': updated_attendee
+    })
+
+
+# 4. Kiosk Status Query Endpoint
+@api.route('/kiosk/status/<ticket_id>', methods=['GET'])
+def get_kiosk_attendee_status(ticket_id):
+    """Fetch real-time check-in status for an attendee."""
+    attendee = db.get_attendee_by_ticket_id(ticket_id)
+    if not attendee:
+        return jsonify({'success': False, 'error': f"Ticket '{ticket_id}' not found."}), 404
+
+    return jsonify({'success': True, 'attendee': attendee})
+

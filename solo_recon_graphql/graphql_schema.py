@@ -92,6 +92,65 @@ class Query(graphene.ObjectType):
         )
 
 
+class AttendeeType(graphene.ObjectType):
+    ticket_id = graphene.String(required=True)
+    name = graphene.String()
+    email = graphene.String()
+    ticket_type = graphene.String()
+    status = graphene.String()
+    badge_printed = graphene.Boolean()
+    badge_id = graphene.String()
+    print_job_id = graphene.String()
+    checked_in_at = graphene.String()
+
+    def resolve_ticket_id(root, info):
+        return root.get('ticketId', '')
+
+    def resolve_ticket_type(root, info):
+        return root.get('ticketType', '')
+
+    def resolve_badge_printed(root, info):
+        return root.get('badgePrinted', False)
+
+    def resolve_badge_id(root, info):
+        return root.get('badgeId', '')
+
+    def resolve_print_job_id(root, info):
+        return root.get('printJobId', '')
+
+    def resolve_checked_in_at(root, info):
+        return root.get('checkedInAt', '')
+
+
+class ScanAttendeeQrMutation(graphene.Mutation):
+    class Arguments:
+        ticket_id = graphene.String(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    status = graphene.String()
+    attendee = graphene.Field(AttendeeType)
+
+    def mutate(root, info, ticket_id):
+        from message_queue import printer_queue
+        success, code, attendee = db.initiate_attendee_checkin(ticket_id)
+        if not success:
+            return ScanAttendeeQrMutation(
+                success=False,
+                message=f"Scan failed: {code}",
+                status=attendee.get('status') if attendee else 'ERROR',
+                attendee=attendee
+            )
+        # Publish job to message queue
+        printer_queue.publish_print_job(ticket_id, attendee['printJobId'])
+        return ScanAttendeeQrMutation(
+            success=True,
+            message="Check-in initiated. Badge print job enqueued asynchronously.",
+            status="PENDING_PRINT",
+            attendee=attendee
+        )
+
+
 class UpdateStockMutation(graphene.Mutation):
     class Arguments:
         sku = graphene.String(required=True)
@@ -109,7 +168,6 @@ class UpdateStockMutation(graphene.Mutation):
                 message=f"SKU '{sku}' not found.",
                 item=None
             )
-        # Update in-memory / JSON dict representation
         item['stockCount'] = new_count
         item['inStock'] = new_count > 0
         return UpdateStockMutation(
@@ -119,8 +177,62 @@ class UpdateStockMutation(graphene.Mutation):
         )
 
 
+class Query(graphene.ObjectType):
+    inventory = graphene.List(
+        InventoryItemType,
+        query=graphene.String(default_value=""),
+        description="Search inventory items by keyword matching name, sku, or category."
+    )
+    item_by_sku = graphene.Field(
+        InventoryItemType,
+        sku=graphene.String(required=True),
+        description="Fetch a single inventory item by exact SKU."
+    )
+    check_stock = graphene.Field(
+        StockCheckResultType,
+        sku=graphene.String(required=True),
+        requested_quantity=graphene.Int(default_value=1),
+        description="Check real-time stock availability for a given SKU and requested quantity."
+    )
+    attendee_status = graphene.Field(
+        AttendeeType,
+        ticket_id=graphene.String(required=True),
+        description="Fetch real-time Solstice Events Co attendee check-in status."
+    )
+
+    def resolve_inventory(root, info, query=""):
+        return db.search_inventory(query)
+
+    def resolve_item_by_sku(root, info, sku):
+        return db.get_item_by_sku(sku)
+
+    def resolve_check_stock(root, info, sku, requested_quantity=1):
+        item = db.get_item_by_sku(sku)
+        if not item:
+            return StockCheckResultType(
+                sku=sku,
+                available=False,
+                stock_count=0,
+                message=f"Item with SKU '{sku}' not found."
+            )
+        stock_count = item.get('stockCount', 0)
+        is_available = item.get('inStock', False) and stock_count >= requested_quantity
+        msg = f"In stock: {stock_count} units available." if is_available else f"Out of stock or insufficient quantity."
+        return StockCheckResultType(
+            sku=sku,
+            available=is_available,
+            stock_count=stock_count,
+            message=msg
+        )
+
+    def resolve_attendee_status(root, info, ticket_id):
+        return db.get_attendee_by_ticket_id(ticket_id)
+
+
 class Mutation(graphene.ObjectType):
     update_stock = UpdateStockMutation.Field(description="Update stock count for an inventory SKU.")
+    scan_attendee_qr = ScanAttendeeQrMutation.Field(description="Scan attendee QR code for Solstice Events kiosk.")
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
+

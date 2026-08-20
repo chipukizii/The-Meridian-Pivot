@@ -5,7 +5,7 @@
     "category": "Footwear",
     "price": "$120.00",
     "inStock": true,
-    "stockCount": 47,
+    "stockCount": 46,
     "sizesAvailable": [
       "US 7",
       "US 8",
@@ -25,7 +25,7 @@
     "category": "Electronics",
     "price": "$199.00",
     "inStock": true,
-    "stockCount": 18,
+    "stockCount": 19,
     "sizesAvailable": [
       "Standard Black",
       "Silver Gray"

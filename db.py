@@ -120,3 +120,78 @@ def update_inventory_cache(updates):
     update_sync_status('POLLING_5MIN', updated_count)
     return updated_count
 
+
+# ---- Day 4: Solstice Events Co. Attendees & Check-In Kiosk ----
+
+def get_all_attendees():
+    """Return all attendees."""
+    try:
+        return _load('attendees.json')
+    except Exception:
+        return []
+
+def get_attendee_by_ticket_id(ticket_id):
+    """Return a single attendee by ticket ID."""
+    attendees = get_all_attendees()
+    return next((a for a in attendees if a['ticketId'].upper() == ticket_id.upper()), None)
+
+def initiate_attendee_checkin(ticket_id):
+    """
+    Initiate async badge print check-in for an attendee.
+    Enforces Duplicate-Scan Protection: Rejects if status is PENDING_PRINT or CHECKED_IN.
+    """
+    import time
+    attendees = get_all_attendees()
+    attendee = next((a for a in attendees if a['ticketId'].upper() == ticket_id.upper()), None)
+
+    if not attendee:
+        return False, "ATTENDEE_NOT_FOUND", None
+
+    # Duplicate scan protection check
+    if attendee['status'] in ('PENDING_PRINT', 'CHECKED_IN'):
+        return False, "DUPLICATE_SCAN_REJECTED", attendee
+
+    # Generate unique print job ID
+    job_id = f"JOB-{abs(hash(ticket_id + str(time.time()))) % 100000:05d}"
+    attendee['status'] = 'PENDING_PRINT'
+    attendee['printJobId'] = job_id
+
+    _save('attendees.json', attendees)
+    return True, "PRINT_JOB_ENQUEUED", attendee
+
+def confirm_badge_printed(ticket_id, job_id, badge_id=None):
+    """
+    Callback handler to confirm badge print completion.
+    Idempotent: If already CHECKED_IN, returns current state safely without duplicate processing.
+    """
+    import datetime
+    attendees = get_all_attendees()
+    attendee = next((a for a in attendees if a['ticketId'].upper() == ticket_id.upper()), None)
+
+    if not attendee:
+        return None
+
+    # Idempotency check for out-of-order or duplicate webhooks
+    if attendee['status'] == 'CHECKED_IN':
+        return attendee
+
+    attendee['status'] = 'CHECKED_IN'
+    attendee['badgePrinted'] = True
+    attendee['badgeId'] = badge_id or f"BDG-{job_id[-6:]}"
+    attendee['checkedInAt'] = datetime.datetime.now().isoformat()
+
+    _save('attendees.json', attendees)
+    update_sync_status('ASYNC_QUEUE_WEBHOOK', 1)
+    return attendee
+
+def reset_attendees():
+    """Reset attendees dataset to initial state for testing."""
+    initial_attendees = [
+        {"ticketId": "ATT-1001", "name": "Alice Johnson", "email": "alice@solsticeevents.com", "ticketType": "VIP Speaker", "status": "REGISTERED", "badgePrinted": False, "printJobId": None, "checkedInAt": None},
+        {"ticketId": "ATT-1002", "name": "Bob Smith", "email": "bob@solsticeevents.com", "ticketType": "General Attendee", "status": "REGISTERED", "badgePrinted": False, "printJobId": None, "checkedInAt": None},
+        {"ticketId": "ATT-1003", "name": "Charlie Davis", "email": "charlie@solsticeevents.com", "ticketType": "Workshop Lead", "status": "REGISTERED", "badgePrinted": False, "printJobId": None, "checkedInAt": None}
+    ]
+    _save('attendees.json', initial_attendees)
+    return initial_attendees
+
+
