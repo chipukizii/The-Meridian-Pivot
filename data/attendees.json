@@ -6,8 +6,8 @@
     "ticketType": "VIP Speaker",
     "status": "CHECKED_IN",
     "badgePrinted": true,
-    "printJobId": "JOB-54812",
-    "checkedInAt": "2026-08-20T11:47:42.219538",
+    "printJobId": "JOB-51026",
+    "checkedInAt": "2026-08-21T10:04:23.187229",
     "badgeId": "BDG-ATT-1001"
   },
   {
@@ -17,8 +17,8 @@
     "ticketType": "General Attendee",
     "status": "CHECKED_IN",
     "badgePrinted": true,
-    "printJobId": "JOB-24370",
-    "checkedInAt": "2026-08-20T11:47:42.282977",
+    "printJobId": "JOB-53225",
+    "checkedInAt": "2026-08-21T10:04:23.260097",
     "badgeId": "BDG-ATT-1002"
   },
   {
@@ -28,8 +28,8 @@
     "ticketType": "Workshop Lead",
     "status": "CHECKED_IN",
     "badgePrinted": true,
-    "printJobId": "JOB-86807",
-    "checkedInAt": "2026-08-20T11:47:42.332248",
+    "printJobId": "JOB-78501",
+    "checkedInAt": "2026-08-21T10:04:23.343101",
     "badgeId": "BDG-ATT-1003"
   }
 ]
