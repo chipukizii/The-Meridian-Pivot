@@ -1,0 +1,49 @@
+/*
+ * frontend/static/styles.css
+ * OWNER: Member 4
+ * RESPONSIBILITY: All CSS — layout, theming, component styles, dark/light mode
+ *
+ * TODO — Member 4, implement the following:
+ *
+ * [ ] :root variables (dark theme defaults)
+ *       --bg-dark, --card-bg, --border-color
+ *       --order-card-bg, --order-card-border
+ *       --input-bg, --input-border
+ *       --primary, --primary-hover
+ *       --success, --warning, --danger
+ *       --text-main, --text-muted
+ *       --otp-bg, --otp-border, --otp-text
+ *       --shadow
+ *
+ * [ ] [data-theme="light"] overrides for all variables above
+ *
+ * [ ] Global reset: * { box-sizing, margin, padding, font-family, transitions }
+ * [ ] body styles
+ * [ ] header layout (flex, space-between, border-bottom)
+ * [ ] .brand-title, .badge styles
+ * [ ] .header-actions
+ * [ ] .btn-theme (compact square icon button — shows moon/sun symbol)
+ * [ ] .btn-reset
+ * [ ] .view-switcher-bar (horizontal scrollable tab bar)
+ * [ ] .view-tab + .view-tab.active
+ * [ ] .persona-context-banner
+ * [ ] .grid-layout (3-column CSS grid)
+ * [ ] .grid-layout.single-view (centered single card)
+ * [ ] .grid-layout.single-view.rider-mobile-frame (phone bezel effect)
+ * [ ] .persona-card
+ * [ ] .persona-header
+ * [ ] .form-group, form-group label, input, select
+ * [ ] .btn-action, .btn-success, .btn-warning
+ * [ ] .order-card
+ * [ ] .order-meta
+ * [ ] .status-pill
+ *       .status-PENDING_DISPATCH
+ *       .status-ASSIGNED
+ *       .status-PICKED_UP
+ *       .status-DELIVERED
+ * [ ] Light mode overrides for status pills
+ * [ ] .otp-banner (monospace, dashed border, distinct background)
+ * [ ] Responsive: @media (max-width: 1024px) — single column
+ */
+
+/* === Write your styles below this line === */

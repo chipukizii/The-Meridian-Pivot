@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflex — Delivery Synchronization Dashboard</title>
+
+    <!--
+        OWNER: Member 3
+        RESPONSIBILITY: HTML structure — 3-column layout, persona cards, forms, view switcher tabs
+
+        TODO — Member 3, build the following sections:
+
+        [ ] <header>
+              - Brand title: REFLEX + badge "Live Executive Defense Simulation"
+              - Right side: theme toggle button (id="themeToggleBtn") + Reset Demo State button
+
+        [ ] View Switcher Bar (.view-switcher-bar)
+              - 4 tabs: All 3 Personas | Retailer View | Dispatcher View | Rider View
+              - Each tab calls switchView('all'|'retailer'|'dispatcher'|'rider')
+
+        [ ] Context Banner (#contextBanner)
+              - Shows which persona / screen is currently active
+
+        [ ] 3-Column Grid (#mainGrid)
+              - Card 1 (#card-retailer): order entry form + active orders list
+              - Card 2 (#card-dispatcher): unassigned queue + fleet status list
+              - Card 3 (#card-rider): rider selector + task list
+
+        NOTE: All styling goes in styles.css (Member 4's file).
+              All interactivity (fetch, renderX, switchView) goes in the <script> tag at the bottom.
+    -->
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- TODO: Build header here -->
+
+    <!-- TODO: Build view switcher bar here -->
+
+    <!-- TODO: Build context banner here -->
+
+    <!-- TODO: Build main 3-column grid here -->
+
+    <script>
+        const API_BASE = '/api';
+
+        /*
+         * TODO — Member 3, implement the following JS functions:
+         *
+         * [ ] switchView(mode)           — show/hide cards based on 'all'|'retailer'|'dispatcher'|'rider'
+         * [ ] fetchState()               — poll all API endpoints and call render functions
+         * [ ] renderRetailerOrders(orders)
+         * [ ] renderDispatcherQueue(unassigned, riders)
+         * [ ] renderFleetStatus(riders)
+         * [ ] loadRiderTasks()
+         * [ ] createOrder(e)             — POST /api/orders
+         * [ ] assignOrder(orderId)       — POST /api/dispatch/assign
+         * [ ] pickupOrder(orderId, riderId) — POST /api/riders/pickup
+         * [ ] deliverOrder(orderId, riderId) — POST /api/riders/deliver (with OTP input)
+         * [ ] resetDemo()               — POST /api/system/reset
+         *
+         * Theme is handled by Member 4's styles.css + these two functions:
+         * [ ] applyTheme(theme)          — set data-theme attribute + update moon/sun icon
+         * [ ] toggleTheme()             — flip between 'dark' and 'light'
+         *
+         * Poll fetchState() every 4 seconds:
+         *   setInterval(fetchState, 4000);
+         */
+    </script>
+
+</body>
+</html>
